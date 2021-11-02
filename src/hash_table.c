@@ -1,8 +1,39 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <stdio.h>
 
 #include "hash_table.h"
 
+/*
+ * Return whether x is prime or not
+ *
+ * Returns:
+ *   1  - prime
+ *   0  - not prime
+ *   -1 - undefined (i.e. x < 2)
+ */
+int is_prime(const int x) {
+    if (x < 2) { return -1; }
+    if (x < 4) { return 1; }
+    if ((x % 2) == 0) { return 0; }
+    for (int i = 3; i <= floor(sqrt((double) x)); i += 2) {
+        if ((x % i) == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/*
+ * Return the next prime after x, or x if x is prime
+ */
+int next_prime(int x) {
+    while (is_prime(x) != 1) {
+        x++;
+    }
+    return x;
+}
 
 
 // create a new hash table item
@@ -15,13 +46,13 @@ static ht_item* ht_new_item(const char* k, const char* v) {
 
 // create a new hash table
 static ht_hash_table* ht_new_sized(const int base_size) {
-    ht_hash_table* ht = xmalloc(sizeof(ht_hash_table));
+    ht_hash_table* ht = malloc(sizeof(ht_hash_table));
     ht->base_size = base_size;
 
     ht->size = next_prime(ht->base_size);
 
     ht->count = 0;
-    ht->items = xcalloc((size_t)ht->size, sizeof(ht_item*));
+    ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
     return ht;
 }
 
@@ -41,8 +72,8 @@ static void ht_delete_item(ht_item* item) {
 void ht_del_hash_table(ht_hash_table* ht) {
     for (int i = 0; i < ht->size; i++) {
         ht_item* item = ht->items[i];
-        if (ht_item != NULL) {
-            ht_delete_item(ht_item);
+        if (item != NULL) {
+            ht_delete_item(item);
         }
     }
     free(ht->items);
@@ -187,4 +218,27 @@ static void ht_resize_up(ht_hash_table* ht) {
 static void ht_resize_down(ht_hash_table* ht) {
     const int new_size = ht->base_size / 2;
     ht_resize(ht, new_size);
+}
+void print_ht(ht_hash_table* ht) {
+    for (int i = 0; i < ht->size; i++) {
+        ht_item* item = ht->items[i];
+        if (item != NULL) {
+            printf("%s: %s - ", item->key, item->value);
+        } else {
+            printf("NULL - ");
+        }
+    }
+} 
+int main() {
+    ht_hash_table* ht = ht_new();
+    ht_insert(ht, "1", "one");
+    ht_insert(ht, "2", "two");
+    ht_insert(ht, "3", "three");
+    ht_insert(ht, "4", "four");
+    ht_insert(ht, "hello", "world");
+    print_ht(ht);
+    ht_delete(ht, "1");
+    print_ht(ht);
+
+    ht_del_hash_table(ht);
 }
