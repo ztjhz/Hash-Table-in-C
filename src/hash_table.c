@@ -74,7 +74,14 @@ void ht_insert(ht_hash_table* ht, const char* key, const char* value) {
     int index = ht_get_hash(item->key, ht->size, 0);
     ht_item* curr_item = ht->items[0];
     int i = 1;
-    while (curr_item != NULL) {
+    while (curr_item != NULL && curr_item != &HT_DELETED_ITEM) {
+        // for same key
+        if (strcmp(curr_item->key, key) == 0) {
+            ht_delete_item(curr_item);
+            ht->items[index] = item;
+            return;
+
+        }
         index = ht_get_hash(item->key, ht->size, i);
         curr_item = ht->items[index];
         i++;
@@ -89,7 +96,7 @@ char* ht_search(ht_hash_table* ht, const char* key) {
     int i = 1;
 
     while (item != NULL) {
-        if (strcmp(item->key, key) == 0) {
+        if (item != &HT_DELETED_ITEM && strcmp(item->key, key) == 0) {
             return item->value;
         }
         index = ht_get_hash(key, ht->size, i);
@@ -99,3 +106,32 @@ char* ht_search(ht_hash_table* ht, const char* key) {
     return NULL;
 }
 
+/* 
+Deleting from an open addressed hash table is more complicated than inserting or searching. 
+The item we wish to delete may be part of a collision chain. 
+Removing it from the table will break that chain, and will make finding items in the tail of the chain impossible. 
+To solve this, instead of deleting the item, we simply mark it as deleted.
+
+We mark an item as deleted by replacing it with a pointer to a global sentinel item which represents 
+that a bucket contains a deleted item. */
+
+static ht_item HT_DELETED_ITEM = {NULL, NULL};
+
+void ht_delete(ht_hash_table* ht, const char* key) {
+    int index = ht_get_hash(key, ht->size, 0);
+    ht_item* item = ht->items[index];
+    int i = 0;
+
+    while (item != NULL) {
+        if (item != &HT_DELETED_ITEM) {
+            if (strcmp(item->key, key) == 0) {
+                ht_delete_item(item);
+                ht->items[index] = &HT_DELETED_ITEM;
+            }
+        }
+        index = ht_get_hash(key, ht->size, i);
+        item = ht->items[index];
+        i++;
+    }
+    ht->count--;
+}
