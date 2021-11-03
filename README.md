@@ -20,4 +20,4 @@
 
 ## What can be done:
 
-- Implemnting testing for the hash table
+- Implementing testing for the hash table
