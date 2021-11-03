@@ -2,6 +2,8 @@
 
 ![C](http://img.shields.io/badge/-C-1E5128?style=flat-square&logo=c&logoColor=ffffff) <a href="https://github.com/jamesroutley/write-a-hash-table" alt="reference" target="_blank"><img src="http://img.shields.io/badge/-Reference-007ACC?style=flat-square&logo=github&logoColor=ffffff" > </a>
 
+<img src="hashtablec.gif" alt="hash table in c gif" width=400/>
+
 ## What I learnt:
 
 1. How to create a hash table from stratch
